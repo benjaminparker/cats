@@ -20,9 +20,9 @@ object Async {
 
   def findUpdateAuditWithCats(implicit ec: ExecutionContext): Future[Either[ErrorMessage, Thing]] = {
     val f = for {
-      thing <- EitherT.fromOptionF(findAThing, ErrorMessage("Thing not found"))
-      updatedThing <- EitherT(upsertAThing(thing))
-      auditedThing <- EitherT.pure(auditAThing(updatedThing))
+      thing <- EitherT.fromOptionF[Future,ErrorMessage,Thing](findAThing, ErrorMessage("Thing not found"))
+      updatedThing <- EitherT[Future,ErrorMessage,Thing](upsertAThing(thing))
+      auditedThing <- EitherT.pure[Future,ErrorMessage](auditAThing(updatedThing))
     } yield auditedThing
 
     f.value

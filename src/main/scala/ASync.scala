@@ -1,5 +1,5 @@
 import cats.data.EitherT
-import cats.instances.future._
+import cats.implicits._
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -20,9 +20,9 @@ object Async {
 
   def findUpdateAuditWithCats(implicit ec: ExecutionContext): Future[Either[ErrorMessage, Thing]] = {
     val f = for {
-      thing <- EitherT.fromOptionF[Future,ErrorMessage,Thing](findAThing, ErrorMessage("Thing not found"))
-      updatedThing <- EitherT[Future,ErrorMessage,Thing](upsertAThing(thing))
-      auditedThing <- EitherT.pure[Future,ErrorMessage](auditAThing(updatedThing))
+      thing <- EitherT.fromOptionF(findAThing, ErrorMessage("Thing not found"))
+      updatedThing <- EitherT(upsertAThing(thing))
+      auditedThing <- EitherT.rightT[Future,ErrorMessage](auditAThing(updatedThing))
     } yield auditedThing
 
     f.value
